@@ -1,5 +1,7 @@
 package main
 
 func main() {
-	startRepl()
+	var config config
+
+	startRepl(&config)
 }
