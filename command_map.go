@@ -36,5 +36,6 @@ func commandMapb(cfg *config) error {
 	for _, loc := range locationResp.Results {
 		fmt.Println(loc.Name)
 	}
+
 	return nil
 }
