@@ -7,12 +7,11 @@ import (
 	"strings"
 
 	"github.com/Tasuba/pokedexcli/internal/pokeapi"
-	"github.com/Tasuba/pokedexcli/internal/pokecache"
 )
 
 type config struct {
 	pokeapiClient    pokeapi.Client
-	cache            pokecache.Cache
+	pokedex          map[string]pokeapi.Pokemon
 	nextLocationsURL *string
 	prevLocationsURL *string
 }
@@ -29,10 +28,9 @@ func startRepl(cfg *config) {
 		}
 
 		commandName := words[0]
-		var param string
-
+		args := []string{}
 		if len(words) > 1 {
-			param = words[1]
+			args = words[1:]
 		}
 
 		command, exists := getCommands()[commandName]
@@ -40,10 +38,11 @@ func startRepl(cfg *config) {
 			fmt.Println("Unknown command")
 			continue
 		} else {
-			err := command.callback(cfg, param)
+			err := command.callback(cfg, args...)
 			if err != nil {
 				fmt.Printf("Error : %v\n", err)
 			}
+			fmt.Println("")
 			continue
 		}
 	}
@@ -52,7 +51,7 @@ func startRepl(cfg *config) {
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(*config, string) error
+	callback    func(*config, ...string) error
 }
 
 func getCommands() map[string]cliCommand {
@@ -78,9 +77,14 @@ func getCommands() map[string]cliCommand {
 			callback:    commandMapb,
 		},
 		"explore": {
-			name:        "explore",
+			name:        "explore <location_name>",
 			description: "List pokemons in the specified area",
 			callback:    commandExplore,
+		},
+		"catch": {
+			name:        "catch <pokemon_name>",
+			description: "Throw your pokeball at a pokemon!",
+			callback:    commandCatch,
 		},
 	}
 }
